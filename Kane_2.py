@@ -1,9 +1,15 @@
 import json
 import os
 import random
+import sys
 import time
 import pandas as pd
 from playwright.sync_api import sync_playwright
+
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
+if sys.stderr.encoding != "utf-8":
+    sys.stderr.reconfigure(encoding="utf-8")
 
 # ======================================================================
 # CẤU HÌNH
@@ -84,9 +90,9 @@ def main():
 
         page = context.new_page()
 
-        # Gọi trang chủ 1 lần để thiết lập cookies & session hợp lệ của Tiki
+        # Điều hướng tới danh mục để thiết lập session & cookie hợp lệ
         print("🌐 Đang kết nối tới Tiki...")
-        page.goto("https://tiki.vn/", timeout=60000)
+        page.goto(f"https://tiki.vn/sach-quan-tri-nhan-luc/c{CATEGORY_ID}", timeout=60000)
         random_sleep(2, 3)
 
         page_no = 1
@@ -101,22 +107,21 @@ def main():
             )
 
             try:
-                # Gọi API trực tiếp thông qua session Playwright (vượt Cloudflare tốt hơn)
-                response = page.request.get(
+                # Gọi API trực tiếp thông qua context của browser (fetch) để tránh bị WAF chặn
+                data = page.evaluate(
+                    """async (url) => {
+                        const res = await fetch(url, {
+                            headers: {
+                                "Accept": "application/json, text/plain, */*"
+                            }
+                        });
+                        if (!res.ok) {
+                            throw new Error(`HTTP status: ${res.status}`);
+                        }
+                        return await res.json();
+                    }""",
                     api_url,
-                    headers={
-                        "Referer": f"https://tiki.vn/sach-quan-tri-nhan-luc/c{CATEGORY_ID}",
-                        "Accept": "application/json, text/plain, */*",
-                    },
                 )
-
-                if response.status != 200:
-                    print(
-                        f"  ⚠️ Trang {page_no}: API trả về status code {response.status}"
-                    )
-                    break
-
-                data = response.json()
                 items = data.get("data", [])
                 paging = data.get("paging", {})
 
