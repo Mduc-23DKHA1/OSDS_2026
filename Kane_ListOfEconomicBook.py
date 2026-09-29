@@ -23,7 +23,7 @@ def scrape_tiki_category(parent_id: int):
 
         if response.status_code == 200:
             data = response.json()
-            filename = f"Kane_1_{parent_id}.json"
+            filename = f"Kane_ListOfEconomicBook.json"
 
             # Lưu ra file JSON với định dạng tiếng Việt đúng
             with open(filename, "w", encoding="utf-8") as f:

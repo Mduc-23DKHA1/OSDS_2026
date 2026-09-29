@@ -16,8 +16,8 @@ if sys.stderr.encoding != "utf-8":
 # ======================================================================
 CATEGORY_ID = 4144  # ID danh mục c4144: Sách Quản Trị Nhân Lực
 LIMIT_PER_PAGE = 40  # Số sản phẩm tối đa Tiki trả về mỗi trang API
-OUTPUT_FILE = "Kane_2_QTNhanLuc.csv"
-OUTPUT_JSON = "Kane_2_QTNhanLuc.json"  # Lưu thêm file JSON nếu cần
+OUTPUT_FILE = "Kane_ListOfHumanResourceBook.csv"
+OUTPUT_JSON = "Kane_ListOfHumanResourceBook.json"  # Lưu thêm file JSON nếu cần
 DEBUG_DIR = "debug"
 HEADLESS = False  # Để True khi cào qua API
 
