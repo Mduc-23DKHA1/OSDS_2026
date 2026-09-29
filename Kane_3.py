@@ -10,9 +10,9 @@ from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 # ======================================================================
 # CẤU HÌNH
 # ======================================================================
-INPUT_JSON = "sach_quan_tri_nhan_luc.json"   # File JSON chứa danh sách sản phẩm (có trường "url")
-OUTPUT_FILE = "sach_quan_tri_nhan_luc_reviews.csv"
-OUTPUT_JSON = "sach_quan_tri_nhan_luc_reviews.json"
+INPUT_JSON = "Kane_2_QTNhanLuc.json"   # File JSON chứa danh sách sản phẩm (có trường "url")
+OUTPUT_FILE = "Kane_3_QTNhanLuc.json"
+OUTPUT_JSON = "Kane_3_QTNhanLuc.json"
 DEBUG_DIR = "debug"
 
 HEADLESS = False          # Nên để False lúc test; chạy ổn định thì đổi True
