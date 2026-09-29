@@ -10,10 +10,10 @@ from playwright.sync_api import sync_playwright
 # ======================================================================
 CATEGORY_ID = 4144  # ID danh mục c4144: Sách Quản Trị Nhân Lực
 LIMIT_PER_PAGE = 40  # Số sản phẩm tối đa Tiki trả về mỗi trang API
-OUTPUT_FILE = "sach_quan_tri_nhan_luc.csv"
-OUTPUT_JSON = "sach_quan_tri_nhan_luc.json"  # Lưu thêm file JSON nếu cần
+OUTPUT_FILE = "Kane_2_QTNhanLuc.csv"
+OUTPUT_JSON = "Kane_2_QTNhanLuc.json"  # Lưu thêm file JSON nếu cần
 DEBUG_DIR = "debug"
-HEADLESS = True  # Để True khi cào qua API
+HEADLESS = False  # Để True khi cào qua API
 
 SKIP_ADS = False  # True: bỏ sản phẩm quảng cáo
 FULL_SIZE_IMAGE = True  # True: bỏ '/cache/280x280' để lấy ảnh chất lượng cao
@@ -162,16 +162,16 @@ def main():
     df = pd.DataFrame(results, columns=COLUMNS)
     df.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
 
-    # # Xuất thêm file JSON
-    # with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
-    #     json.dump(results, f, ensure_ascii=False, indent=4)
+    # Xuất thêm file JSON
+    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=4)
 
     ok_count = df["error"].isna().sum()
     print(
         f"\n🎉 HOÀN THÀNH: Đã xuất {len(df)} sản phẩm ({ok_count} thành công)"
     )
     print(f"📁 File CSV: {OUTPUT_FILE}")
-    # print(f"📁 File JSON: {OUTPUT_JSON}")
+    print(f"📁 File JSON: {OUTPUT_JSON}")
 
 
 if __name__ == "__main__":
