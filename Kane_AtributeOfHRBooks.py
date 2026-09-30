@@ -1,5 +1,4 @@
 import json
-import os
 import random
 import re
 import time
@@ -13,29 +12,30 @@ from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 INPUT_JSON = "Kane_ListOfHumanResourceBook.json"   # File JSON chứa danh sách sản phẩm (có trường "url")
 OUTPUT_FILE = "Kane_AtributeOfHRBooks.csv"
 OUTPUT_JSON = "Kane_AtributeOfHRBooks.json"
-DEBUG_DIR = "debug"
-
-HEADLESS = False          # Nên để False lúc test; chạy ổn định thì đổi True
-MAX_PRODUCTS = 8          # None = cào hết; hoặc số nguyên để chạy thử (vd: 5)
-MAX_LOAD_MORE = None      # None = bấm "Xem thêm" đến khi hết; hoặc số nguyên để giới hạn
-MAX_REVIEW_PAGES = None   # None = lật trang review đến hết; hoặc số nguyên để giới hạn (vd: 5)
-MAX_SCROLL_ROUNDS = 60    # Số vòng cuộn tối đa để tải hết review (chống lặp vô hạn)
-PAGE_CHANGE_TIMEOUT = 10  # Số giây chờ nội dung đổi sau khi bấm sang trang
-CHECKPOINT_EVERY = 10     # Lưu tạm ra file sau mỗi N sản phẩm
 SAVE_JSON = True
 
-# Selector (dùng class ổn định, KHÔNG dùng class hash như 'sc-a236768f-0 fFhahK'
-# vì chuỗi hash của styled-components sẽ đổi mỗi khi Tiki cập nhật giao diện)
+MAX_PRODUCTS = 8          # None = cào hết; hoặc số nguyên để chạy thử
+MAX_LOAD_MORE = None      # None = bấm "Xem thêm" đến khi hết
+MAX_REVIEW_PAGES = None   # None = lật trang review đến hết
+MAX_SCROLL_ROUNDS = 60    # Số vòng cuộn tối đa để tải hết review
+CHECKPOINT_EVERY = 10     # Lưu tạm sau mỗi N sản phẩm
+HEADLESS = False          # Chạy ổn định thì đổi True
+
+PAGE_LOAD_TIMEOUT = 60000
+NETWORK_IDLE_TIMEOUT = 10000
+REVIEW_BLOCK_TIMEOUT = 8000
+PAGE_CHANGE_TIMEOUT = 10  # Số giây chờ nội dung đổi sau khi bấm sang trang
+DELAY_MIN, DELAY_MAX = 1.5, 3.5
+
+# Selector (dùng class ổn định, không dùng class hash của styled-components)
 SEL_POINT = ".review-rating__point"
 SEL_TOTAL = ".review-rating__total"
 SEL_STARS = ".review-rating__stars"
 SEL_REVIEW = ".review-comment"
 
-# Vùng phân trang của review
 SEL_PAGINATION = (
     ".customer-reviews__pagination, [class*='pagination'], [class*='Pagination']"
 )
-# Các selector ứng viên cho nút "trang sau" (thử lần lượt)
 NEXT_SELECTORS = [
     ".customer-reviews__pagination a.next",
     ".customer-reviews__pagination .btn.next",
@@ -47,8 +47,8 @@ NEXT_SELECTORS = [
     "[class*='pagination'] [class*='next']",
     "[class*='Pagination'] [class*='next']",
 ]
-# Nút "trang sau" dạng ký tự / chữ
 NEXT_TEXT_PATTERN = re.compile(r"^\s*(›|>|»|→|Sau|Tiếp|Trang sau|Next)\s*$", re.I)
+LOAD_MORE_PATTERN = re.compile(r"Xem thêm.*đánh giá", re.I | re.S)
 
 COLUMNS = [
     "url", "name",
@@ -58,9 +58,9 @@ COLUMNS = [
 ]
 
 # ======================================================================
-# JS: đếm số sao "sáng" trong 1 khối chứa các icon sao
-# Sao sáng = có màu (vàng), sao tối = màu xám (r≈g≈b)
+# JAVASCRIPT
 # ======================================================================
+# Đếm số sao "sáng" (có màu) trong 1 khối chứa các icon sao
 JS_COUNT_STARS = r"""
 el => {
     if (!el) return null;
@@ -89,9 +89,7 @@ el => {
 }
 """
 
-# ======================================================================
-# JS: lấy TẤT CẢ review đang có trên trang trong 1 lần gọi
-# ======================================================================
+# Lấy tất cả review đang có trên trang trong 1 lần gọi
 JS_EXTRACT_REVIEWS = r"""
 (args) => {
     const { selReview } = args;
@@ -136,9 +134,7 @@ JS_EXTRACT_REVIEWS = r"""
 }
 """
 
-# ======================================================================
-# JS: "chữ ký" của danh sách review hiện tại (dùng để biết trang đã đổi chưa)
-# ======================================================================
+# "Chữ ký" của danh sách review hiện tại (để biết trang đã đổi chưa)
 JS_SIGNATURE = r"""
 (sel) => {
     const els = Array.from(document.querySelectorAll(sel));
@@ -149,9 +145,7 @@ JS_SIGNATURE = r"""
 }
 """
 
-# ======================================================================
-# JS: kiểm tra 1 element có bị vô hiệu hoá (disabled) không
-# ======================================================================
+# Kiểm tra 1 element có bị vô hiệu hoá không
 JS_IS_DISABLED = r"""
 e => {
     const cls = (e.className || '').toString().toLowerCase();
@@ -164,10 +158,74 @@ e => {
 
 
 # ======================================================================
-# HÀM TIỆN ÍCH
+# HÀM TIỆN ÍCH & CHE GIẤU BOT
 # ======================================================================
-def random_sleep(low=1.0, high=2.5):
+def apply_stealth(page):
+    """Che giấu dấu hiệu bot — không cần thư viện ngoài"""
+    page.add_init_script("""
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+        window.chrome = { runtime: {} };
+        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+        Object.defineProperty(navigator, 'languages', { get: () => ['vi-VN', 'en-US', 'en'] });
+        Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
+    """)
+
+
+def launch_browser(playwright):
+    """Tạo trình duyệt + context + trang mới"""
+    browser = playwright.chromium.launch(
+        headless=HEADLESS,
+        args=[
+            "--disable-blink-features=AutomationControlled",
+            "--no-first-run",
+            "--no-default-browser-check",
+        ],
+    )
+    context = browser.new_context(
+        viewport={"width": 1366, "height": 900},
+        user_agent=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/128.0.0.0 Safari/537.36"
+        ),
+        locale="vi-VN",
+        timezone_id="Asia/Ho_Chi_Minh",
+    )
+    page = context.new_page()
+    apply_stealth(page)
+    return browser, context, page
+
+
+def random_sleep(low, high):
     time.sleep(random.uniform(low, high))
+
+
+def wait_page_ready(page):
+    page.wait_for_load_state("domcontentloaded", timeout=PAGE_LOAD_TIMEOUT)
+    try:
+        page.wait_for_load_state("networkidle", timeout=NETWORK_IDLE_TIMEOUT)
+    except PWTimeout:
+        pass
+
+
+def get_text(page, selector):
+    element = page.locator(selector)
+    if element.count() == 0:
+        return None
+    try:
+        return element.first.inner_text(timeout=2000).strip()
+    except Exception:
+        return None
+
+
+def count_stars(page, selector):
+    element = page.locator(selector)
+    if element.count() == 0:
+        return None
+    try:
+        return element.first.evaluate(JS_COUNT_STARS)
+    except Exception:
+        return None
 
 
 def load_urls(path):
@@ -178,8 +236,7 @@ def load_urls(path):
     if isinstance(data, dict):
         data = list(data.values())
 
-    items = []
-    seen = set()
+    items, seen = [], set()
     for it in data:
         url = it.get("url") if isinstance(it, dict) else None
         if url and url not in seen:
@@ -188,25 +245,14 @@ def load_urls(path):
     return items
 
 
-def safe_text(locator):
-    """Lấy inner_text của element đầu tiên, không có thì trả None"""
-    try:
-        if locator.count() == 0:
-            return None
-        return locator.first.inner_text(timeout=2000).strip()
-    except Exception:
-        return None
+def review_key(r):
+    return (r.get("review_user"), r.get("review_stars"),
+            r.get("review_title"), r.get("review_content"))
 
 
-def count_stars(locator):
-    try:
-        if locator.count() == 0:
-            return None
-        return locator.first.evaluate(JS_COUNT_STARS)
-    except Exception:
-        return None
-
-
+# ======================================================================
+# CUỘN & TẢI THÊM REVIEW
+# ======================================================================
 def scroll_to_reviews(page):
     """Cuộn dần xuống để Tiki lazy-load phần đánh giá"""
     for _ in range(12):
@@ -221,10 +267,7 @@ def scroll_to_reviews(page):
 
 
 def scroll_until_all_loaded(page):
-    """
-    Cuộn tới review cuối cùng liên tục (cả trên trang lẫn trong popup cuộn)
-    cho đến khi số review ngừng tăng -> tải hết lazy-load.
-    """
+    """Cuộn tới review cuối cho đến khi số review ngừng tăng"""
     stagnant = 0
     last = page.locator(SEL_REVIEW).count()
     for _ in range(MAX_SCROLL_ROUNDS):
@@ -238,7 +281,7 @@ def scroll_until_all_loaded(page):
         cur = page.locator(SEL_REVIEW).count()
         if cur <= last:
             stagnant += 1
-            if stagnant >= 3:      # 3 vòng liền không có review mới -> dừng
+            if stagnant >= 3:
                 break
         else:
             stagnant = 0
@@ -246,17 +289,12 @@ def scroll_until_all_loaded(page):
 
 
 def click_load_more(page):
-    """
-    Bấm 'Xem thêm ... đánh giá' đến khi hết nút / không tăng thêm review.
-    Sau mỗi lần bấm đều cuộn để tải hết phần lazy-load.
-    (Việc lật sang các trang review kế tiếp do go_next_page() đảm nhiệm.)
-    """
+    """Bấm 'Xem thêm ... đánh giá' đến khi hết nút hoặc không tăng thêm review"""
     clicks = 0
     stagnant = 0
-    pattern = re.compile(r"Xem thêm.*đánh giá", re.I | re.S)
 
     while MAX_LOAD_MORE is None or clicks < MAX_LOAD_MORE:
-        btn = page.locator("a, button").filter(has_text=pattern)
+        btn = page.locator("a, button").filter(has_text=LOAD_MORE_PATTERN)
         if btn.count() == 0:
             break
 
@@ -279,13 +317,12 @@ def click_load_more(page):
         else:
             stagnant = 0
 
-    # Kể cả khi không có nút "Xem thêm", vẫn cuộn để chắc chắn tải hết
     scroll_until_all_loaded(page)
 
 
-# ----------------------------------------------------------------------
+# ======================================================================
 # PHÂN TRANG REVIEW
-# ----------------------------------------------------------------------
+# ======================================================================
 def _is_disabled(el):
     try:
         return bool(el.evaluate(JS_IS_DISABLED))
@@ -294,7 +331,7 @@ def _is_disabled(el):
 
 
 def _first_usable(locator):
-    """Trả về element đầu tiên đang hiển thị và chưa bị disabled, không có thì None"""
+    """Element đầu tiên đang hiển thị và chưa bị disabled, không có thì None"""
     try:
         n = locator.count()
     except Exception:
@@ -310,7 +347,6 @@ def _first_usable(locator):
 
 
 def _find_next_by_selector(page):
-    """Cách 1: tìm nút 'trang sau' theo class / aria-label / rel=next"""
     for sel in NEXT_SELECTORS:
         el = _first_usable(page.locator(sel))
         if el is not None:
@@ -319,7 +355,6 @@ def _find_next_by_selector(page):
 
 
 def _find_next_by_text(page):
-    """Cách 2: tìm nút có nội dung là ký tự ›, >, », 'Sau', 'Tiếp'... trong vùng phân trang"""
     cands = page.locator(SEL_PAGINATION).locator("a, button, li").filter(
         has_text=NEXT_TEXT_PATTERN
     )
@@ -327,7 +362,7 @@ def _find_next_by_text(page):
 
 
 def _find_next_by_number(page):
-    """Cách 3: tìm trang đang active (số N) rồi bấm vào nút số N+1"""
+    """Tìm trang đang active (số N) rồi lấy nút số N+1"""
     pags = page.locator(SEL_PAGINATION)
     try:
         n = pags.count()
@@ -378,10 +413,7 @@ def _wait_signature_change(page, old_sig):
 
 
 def go_next_page(page):
-    """
-    Bấm sang trang review kế tiếp.
-    Trả về True nếu đã sang trang mới (nội dung review đã đổi), False nếu hết trang.
-    """
+    """Bấm sang trang review kế tiếp. True nếu đã sang trang mới, False nếu hết trang."""
     old_sig = page.evaluate(JS_SIGNATURE, SEL_REVIEW)
 
     nxt = (
@@ -404,16 +436,18 @@ def go_next_page(page):
     return _wait_signature_change(page, old_sig)
 
 
-def extract_all_reviews(page):
-    """Lấy toàn bộ review đang hiển thị (trên trang hiện tại), loại trùng"""
+# ======================================================================
+# THU THẬP REVIEW
+# ======================================================================
+def extract_page_reviews(page):
+    """Lấy toàn bộ review đang hiển thị trên trang hiện tại, loại trùng"""
     raw = page.evaluate(JS_EXTRACT_REVIEWS, {"selReview": SEL_REVIEW})
 
     unique, seen = [], set()
     for r in raw:
         if not (r.get("review_title") or r.get("review_content")):
-            continue   # bỏ khối rỗng (vd: chỉ có tổng quan)
-        key = (r.get("review_user"), r.get("review_stars"),
-               r.get("review_title"), r.get("review_content"))
+            continue
+        key = review_key(r)
         if key in seen:
             continue
         seen.add(key)
@@ -422,11 +456,7 @@ def extract_all_reviews(page):
 
 
 def collect_all_reviews(page):
-    """
-    Lấy review của TẤT CẢ các trang:
-      1. Bấm 'Xem thêm' + cuộn để tải hết review trang đầu
-      2. Trích review -> bấm 'trang sau' -> cuộn -> trích ... đến khi hết trang
-    """
+    """Bấm 'Xem thêm' + cuộn, rồi lần lượt trích review và lật trang đến hết"""
     click_load_more(page)
 
     all_reviews, seen = [], set()
@@ -436,9 +466,8 @@ def collect_all_reviews(page):
         scroll_until_all_loaded(page)
 
         new = 0
-        for r in extract_all_reviews(page):
-            key = (r.get("review_user"), r.get("review_stars"),
-                   r.get("review_title"), r.get("review_content"))
+        for r in extract_page_reviews(page):
+            key = review_key(r)
             if key in seen:
                 continue
             seen.add(key)
@@ -447,7 +476,6 @@ def collect_all_reviews(page):
 
         print(f"     ↳ trang review {page_no}: +{new} (tổng {len(all_reviews)})")
 
-        # Trang này không có review mới -> đã hết (hoặc lặp trang) -> dừng
         if new == 0:
             break
         if MAX_REVIEW_PAGES and page_no >= MAX_REVIEW_PAGES:
@@ -461,33 +489,30 @@ def collect_all_reviews(page):
     return all_reviews
 
 
+# ======================================================================
+# CÀO CHI TIẾT SẢN PHẨM
+# ======================================================================
 def scrape_product(page, item):
-    """Cào 1 sản phẩm -> trả về list các dòng (mỗi review 1 dòng)"""
-    url = item["url"]
+    """Cào 1 sản phẩm -> list các dòng (mỗi review 1 dòng)"""
     base = {c: None for c in COLUMNS}
-    base.update({"url": url, "name": item.get("name")})
+    base.update({"url": item["url"], "name": item.get("name")})
 
-    page.goto(url, timeout=60000, wait_until="domcontentloaded")
-    page.wait_for_timeout(2000)
+    page.goto(item["url"], timeout=PAGE_LOAD_TIMEOUT)
+    wait_page_ready(page)
     scroll_to_reviews(page)
 
     try:
-        page.wait_for_selector(SEL_POINT, timeout=8000)
+        page.wait_for_selector(SEL_POINT, timeout=REVIEW_BLOCK_TIMEOUT)
     except PWTimeout:
-        # Sản phẩm chưa có đánh giá hoặc trang không load được
         base["error"] = "Không tìm thấy khối đánh giá"
         return [base]
 
-    # --- Tổng quan ---
-    base["rating_point"] = safe_text(page.locator(SEL_POINT))
-    base["rating_total"] = safe_text(page.locator(SEL_TOTAL))
-    base["rating_stars"] = count_stars(page.locator(SEL_STARS))
-
-    # --- Tải hết review của mọi trang ---
-    reviews = collect_all_reviews(page)
+    base["rating_point"] = get_text(page, SEL_POINT)
+    base["rating_total"] = get_text(page, SEL_TOTAL)
+    base["rating_stars"] = count_stars(page, SEL_STARS)
 
     rows = []
-    for rv in reviews:
+    for rv in collect_all_reviews(page):
         row = dict(base)
         row.update(rv)
         rows.append(row)
@@ -496,6 +521,9 @@ def scrape_product(page, item):
     return rows or [base]
 
 
+# ======================================================================
+# LƯU KẾT QUẢ
+# ======================================================================
 def save(results):
     df = pd.DataFrame(results, columns=COLUMNS)
     df.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
@@ -509,63 +537,49 @@ def save(results):
 # CHƯƠNG TRÌNH CHÍNH
 # ======================================================================
 def main():
-    os.makedirs(DEBUG_DIR, exist_ok=True)
-
+    # === Bước 1: Đọc danh sách url ===
     items = load_urls(INPUT_JSON)
     if MAX_PRODUCTS:
         items = items[:MAX_PRODUCTS]
-    print(f"📂 Đọc được {len(items)} url từ {INPUT_JSON}")
+    print(f"Bước 1: Đọc được {len(items)} url từ {INPUT_JSON}\n")
 
+    if not items:
+        print("Không có url nào để cào.")
+        return
+
+    # === Bước 2: Cào chi tiết — mỗi sản phẩm = 1 trình duyệt mới ===
+    print("Bước 2: Cào review từng sản phẩm (mỗi link = trình duyệt mới)...")
     results = []
 
     with sync_playwright() as p:
-        print("🚀 Đang khởi tạo trình duyệt Playwright...")
-        browser = p.chromium.launch(headless=HEADLESS)
-        context = browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/128.0.0.0 Safari/537.36"
-            ),
-            locale="vi-VN",
-            viewport={"width": 1366, "height": 900},
-        )
-        page = context.new_page()
-
-        print("🌐 Đang kết nối tới Tiki...")
-        page.goto("https://tiki.vn/", timeout=60000)
-        random_sleep(2, 3)
-
-        for idx, item in enumerate(items, 1):
+        for idx, item in enumerate(items, start=1):
+            brw = None
             try:
-                rows = scrape_product(page, item)
+                brw, ctx, pg = launch_browser(p)
+                rows = scrape_product(pg, item)
                 results.extend(rows)
+
                 n_rv = sum(1 for r in rows if r["review_content"] or r["review_title"])
                 err = rows[0]["error"]
                 status = f"⚠️ {err}" if err else f"✅ {n_rv} review"
                 print(f"  [{idx}/{len(items)}] {status} | {item['url']}")
             except Exception as e:
-                print(f"  [{idx}/{len(items)}] ❌ Lỗi: {e} | {item['url']}")
+                print(f"  [{idx}/{len(items)}] ❌ Lỗi: {str(e)[:100]} | {item['url']}")
                 row = {c: None for c in COLUMNS}
-                row.update({"url": item["url"], "name": item.get("name"), "error": str(e)})
+                row.update({"url": item["url"], "name": item.get("name"),
+                            "error": str(e)[:200]})
                 results.append(row)
-                try:
-                    page.screenshot(path=f"{DEBUG_DIR}/error_{idx}.png")
-                except Exception:
-                    pass
+            finally:
+                if brw:
+                    brw.close()
 
             if idx % CHECKPOINT_EVERY == 0:
                 save(results)
                 print(f"  💾 Đã lưu tạm {len(results)} dòng")
 
-            random_sleep(1.5, 3.5)
+            random_sleep(DELAY_MIN, DELAY_MAX)
 
-        browser.close()
-
-    if not results:
-        print("\n❌ Không thu được dữ liệu nào!")
-        return
-
+    # === Lưu kết quả ===
     df = save(results)
     ok_count = df["error"].isna().sum()
     print(f"\n🎉 HOÀN THÀNH: {len(df)} dòng ({ok_count} thành công) từ {len(items)} sản phẩm")
