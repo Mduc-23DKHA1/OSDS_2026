@@ -1,7 +1,27 @@
-* Kane_ListOfEconomicBook.py
-    - liệt kê những loại sách trong thể loại sách "kinh tế"
-    - cho biết tổng số sách trong từng loại sách
-* Kane_ListOfHumanResourceBook.py
-    - Liệt kê đường dẫn URL của từng cuốn sách và các thuộc tính khác 
-* Kane_AtributeOfHRBooks.py
-    - rút ra các thuộc tính cơ bản cho từng cuốn sách
+# 📚 Tiki Book Data Crawling
+
+Dự án thu thập dữ liệu sách và bình luận sách từ hệ thống Tiki thông qua API.
+
+## 📌 Quy trình tổng quát
+
+Quá trình thu thập dữ liệu được thực hiện theo thứ tự:
+
+```text
+API Review Books
+       │
+       ▼
+Lấy danh sách các thể loại con
+       │
+       ▼
+Extract Categories
+       │
+       ▼
+Lấy toàn bộ category nhánh (leaf categories)
+       │
+       ├───────────────┐
+       ▼               ▼
+API Books Categories   API Reviews Books
+       │               │
+       ▼               ▼
+Danh sách sách         Bình luận sách
+theo category          theo category
