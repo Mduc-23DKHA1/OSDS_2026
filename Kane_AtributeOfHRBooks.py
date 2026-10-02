@@ -33,6 +33,11 @@ SEL_TOTAL = ".review-rating__total"
 SEL_STARS = ".review-rating__stars"
 SEL_REVIEW = ".review-comment"
 
+SEL_REVIEW_USER = ".review-comment__user-name"
+SEL_REVIEW_RATING = ".review-comment__rating"
+SEL_REVIEW_TITLE = ".review-comment__title"
+SEL_REVIEW_CONTENT = ".review-comment__content"
+
 SEL_PAGINATION = (
     ".customer-reviews__pagination, [class*='pagination'], [class*='Pagination']"
 )
@@ -57,104 +62,21 @@ COLUMNS = [
     "error",
 ]
 
-# ======================================================================
-# JAVASCRIPT
-# ======================================================================
-# Đếm số sao "sáng" (có màu) trong 1 khối chứa các icon sao
-JS_COUNT_STARS = r"""
-el => {
-    if (!el) return null;
-    const icons = el.querySelectorAll('svg, img');
-    if (!icons.length) return null;
-    let filled = 0;
-    icons.forEach(ic => {
-        if (ic.tagName.toLowerCase() === 'img') {
-            const src = (ic.getAttribute('src') || '').toLowerCase();
-            if (!/(gray|grey|inactive|empty|outline|disable)/.test(src)) filled++;
-            return;
-        }
-        const nodes = [ic, ...ic.querySelectorAll('path, polygon, g, circle')];
-        let colored = false;
-        for (const n of nodes) {
-            const f = getComputedStyle(n).fill;
-            const m = f && f.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (m) {
-                const r = +m[1], g = +m[2], b = +m[3];
-                if (Math.max(r, g, b) - Math.min(r, g, b) > 40) { colored = true; break; }
-            }
-        }
-        if (colored) filled++;
-    });
-    return filled;
-}
-"""
+# ----------------------------------------------------------------------
+# Hằng số cho phần đếm sao / kiểm tra disabled (trước đây nằm trong JS)
+# ----------------------------------------------------------------------
+STAR_ICON_SELECTOR = "svg, img"
+STAR_SHAPE_SELECTOR = "path, polygon, g, circle"
+INACTIVE_IMG_PATTERN = re.compile(r"(gray|grey|inactive|empty|outline|disable)")
+RGB_PATTERN = re.compile(r"rgba?\((\d+),\s*(\d+),\s*(\d+)")
+DISABLED_CLASS_PATTERN = re.compile(r"(^|\s)(disabled|inactive)(\s|$)")
+COLOR_SPREAD_MIN = 40     # max(r,g,b) - min(r,g,b) > 40 -> sao có màu (sáng)
 
-# Lấy tất cả review đang có trên trang trong 1 lần gọi
-JS_EXTRACT_REVIEWS = r"""
-(args) => {
-    const { selReview } = args;
-
-    const countStars = (el) => {
-        if (!el) return null;
-        const icons = el.querySelectorAll('svg, img');
-        if (!icons.length) return null;
-        let filled = 0;
-        icons.forEach(ic => {
-            if (ic.tagName.toLowerCase() === 'img') {
-                const src = (ic.getAttribute('src') || '').toLowerCase();
-                if (!/(gray|grey|inactive|empty|outline|disable)/.test(src)) filled++;
-                return;
-            }
-            const nodes = [ic, ...ic.querySelectorAll('path, polygon, g, circle')];
-            let colored = false;
-            for (const n of nodes) {
-                const f = getComputedStyle(n).fill;
-                const m = f && f.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-                if (m) {
-                    const r = +m[1], g = +m[2], b = +m[3];
-                    if (Math.max(r, g, b) - Math.min(r, g, b) > 40) { colored = true; break; }
-                }
-            }
-            if (colored) filled++;
-        });
-        return filled;
-    };
-
-    const txt = (root, sel) => {
-        const e = root.querySelector(sel);
-        return e ? e.innerText.trim() : null;
-    };
-
-    return Array.from(document.querySelectorAll(selReview)).map(rv => ({
-        review_user:    txt(rv, '.review-comment__user-name'),
-        review_stars:   countStars(rv.querySelector('.review-comment__rating')),
-        review_title:   txt(rv, '.review-comment__title'),
-        review_content: txt(rv, '.review-comment__content'),
-    }));
-}
-"""
-
-# "Chữ ký" của danh sách review hiện tại (để biết trang đã đổi chưa)
-JS_SIGNATURE = r"""
-(sel) => {
-    const els = Array.from(document.querySelectorAll(sel));
-    if (!els.length) return '';
-    const first = els[0].innerText.slice(0, 200);
-    const last = els[els.length - 1].innerText.slice(0, 200);
-    return els.length + '|' + first + '|' + last;
-}
-"""
-
-# Kiểm tra 1 element có bị vô hiệu hoá không
-JS_IS_DISABLED = r"""
-e => {
-    const cls = (e.className || '').toString().toLowerCase();
-    return e.disabled === true
-        || e.getAttribute('aria-disabled') === 'true'
-        || /(^|\s)(disabled|inactive)(\s|$)/.test(cls)
-        || e.closest('[aria-disabled="true"], .disabled') !== null;
-}
-"""
+# Selector XPath: chính nó hoặc tổ tiên có aria-disabled="true" / class "disabled"
+DISABLED_ANCESTOR_XPATH = (
+    "xpath=ancestor-or-self::*[@aria-disabled='true' or "
+    "contains(concat(' ', normalize-space(@class), ' '), ' disabled ')]"
+)
 
 
 # ======================================================================
@@ -208,24 +130,18 @@ def wait_page_ready(page):
         pass
 
 
+def text_of(locator):
+    """inner_text (đã strip) của element đầu tiên trong locator, không có thì None"""
+    try:
+        if locator.count() == 0:
+            return None
+        return locator.first.inner_text(timeout=2000).strip()
+    except Exception:
+        return None
+
+
 def get_text(page, selector):
-    element = page.locator(selector)
-    if element.count() == 0:
-        return None
-    try:
-        return element.first.inner_text(timeout=2000).strip()
-    except Exception:
-        return None
-
-
-def count_stars(page, selector):
-    element = page.locator(selector)
-    if element.count() == 0:
-        return None
-    try:
-        return element.first.evaluate(JS_COUNT_STARS)
-    except Exception:
-        return None
+    return text_of(page.locator(selector))
 
 
 def load_urls(path):
@@ -248,6 +164,51 @@ def load_urls(path):
 def review_key(r):
     return (r.get("review_user"), r.get("review_stars"),
             r.get("review_title"), r.get("review_content"))
+
+
+# ======================================================================
+# ĐẾM SAO (thay cho JS_COUNT_STARS)
+# ======================================================================
+def _computed_fill(node):
+    """Màu fill thực tế (computed style) của 1 node, ví dụ 'rgb(253, 216, 54)'"""
+    try:
+        return node.evaluate("e => getComputedStyle(e).fill")
+    except Exception:
+        return None
+
+
+def _is_colored(fill):
+    """True nếu màu không phải xám (các kênh r, g, b chênh nhau > ngưỡng)"""
+    m = RGB_PATTERN.search(fill or "")
+    if not m:
+        return False
+    r, g, b = (int(x) for x in m.groups())
+    return max(r, g, b) - min(r, g, b) > COLOR_SPREAD_MIN
+
+
+def _icon_is_filled(icon):
+    """Một icon sao có 'sáng' hay không"""
+    tag = icon.evaluate("e => e.tagName").lower()
+
+    if tag == "img":
+        src = (icon.get_attribute("src") or "").lower()
+        return not INACTIVE_IMG_PATTERN.search(src)
+
+    nodes = [icon] + icon.locator(STAR_SHAPE_SELECTOR).all()
+    return any(_is_colored(_computed_fill(n)) for n in nodes)
+
+
+def count_stars(locator):
+    """Đếm số sao sáng trong khối đầu tiên của locator. Không có icon -> None"""
+    try:
+        if locator.count() == 0:
+            return None
+        icons = locator.first.locator(STAR_ICON_SELECTOR).all()
+        if not icons:
+            return None
+        return sum(1 for ic in icons if _icon_is_filled(ic))
+    except Exception:
+        return None
 
 
 # ======================================================================
@@ -324,8 +285,14 @@ def click_load_more(page):
 # PHÂN TRANG REVIEW
 # ======================================================================
 def _is_disabled(el):
+    """Nút bị vô hiệu hoá: disabled / aria-disabled / class disabled|inactive"""
     try:
-        return bool(el.evaluate(JS_IS_DISABLED))
+        if el.is_disabled():
+            return True
+        cls = (el.get_attribute("class") or "").lower()
+        if DISABLED_CLASS_PATTERN.search(cls):
+            return True
+        return el.locator(DISABLED_ANCESTOR_XPATH).count() > 0
     except Exception:
         return False
 
@@ -398,15 +365,29 @@ def _find_next_by_number(page):
     return None
 
 
+def review_signature(page):
+    """
+    'Chữ ký' của danh sách review hiện tại (số lượng + đầu + cuối)
+    để biết trang đã đổi chưa. Thay cho JS_SIGNATURE.
+    """
+    try:
+        reviews = page.locator(SEL_REVIEW)
+        n = reviews.count()
+        if n == 0:
+            return ""
+        first = reviews.first.inner_text(timeout=2000)[:200]
+        last = reviews.last.inner_text(timeout=2000)[:200]
+        return f"{n}|{first}|{last}"
+    except Exception:
+        return ""
+
+
 def _wait_signature_change(page, old_sig):
     """Chờ đến khi danh sách review đổi so với old_sig. True nếu đổi."""
     deadline = time.time() + PAGE_CHANGE_TIMEOUT
     while time.time() < deadline:
         page.wait_for_timeout(400)
-        try:
-            new_sig = page.evaluate(JS_SIGNATURE, SEL_REVIEW)
-        except Exception:
-            continue
+        new_sig = review_signature(page)
         if new_sig and new_sig != old_sig:
             return True
     return False
@@ -414,7 +395,7 @@ def _wait_signature_change(page, old_sig):
 
 def go_next_page(page):
     """Bấm sang trang review kế tiếp. True nếu đã sang trang mới, False nếu hết trang."""
-    old_sig = page.evaluate(JS_SIGNATURE, SEL_REVIEW)
+    old_sig = review_signature(page)
 
     nxt = (
         _find_next_by_selector(page)
@@ -439,14 +420,23 @@ def go_next_page(page):
 # ======================================================================
 # THU THẬP REVIEW
 # ======================================================================
+def parse_review(rv):
+    """Trích 1 review từ 1 khối .review-comment. Thay cho JS_EXTRACT_REVIEWS."""
+    return {
+        "review_user":    text_of(rv.locator(SEL_REVIEW_USER)),
+        "review_stars":   count_stars(rv.locator(SEL_REVIEW_RATING)),
+        "review_title":   text_of(rv.locator(SEL_REVIEW_TITLE)),
+        "review_content": text_of(rv.locator(SEL_REVIEW_CONTENT)),
+    }
+
+
 def extract_page_reviews(page):
     """Lấy toàn bộ review đang hiển thị trên trang hiện tại, loại trùng"""
-    raw = page.evaluate(JS_EXTRACT_REVIEWS, {"selReview": SEL_REVIEW})
-
     unique, seen = [], set()
-    for r in raw:
+    for rv in page.locator(SEL_REVIEW).all():
+        r = parse_review(rv)
         if not (r.get("review_title") or r.get("review_content")):
-            continue
+            continue   # bỏ khối rỗng (vd: chỉ có tổng quan)
         key = review_key(r)
         if key in seen:
             continue
@@ -509,7 +499,7 @@ def scrape_product(page, item):
 
     base["rating_point"] = get_text(page, SEL_POINT)
     base["rating_total"] = get_text(page, SEL_TOTAL)
-    base["rating_stars"] = count_stars(page, SEL_STARS)
+    base["rating_stars"] = count_stars(page.locator(SEL_STARS))
 
     rows = []
     for rv in collect_all_reviews(page):
@@ -536,26 +526,26 @@ def save(results):
 # ======================================================================
 # CHƯƠNG TRÌNH CHÍNH
 # ======================================================================
+# Sửa hàm main()
 def main():
-    # === Bước 1: Đọc danh sách url ===
     items = load_urls(INPUT_JSON)
     if MAX_PRODUCTS:
         items = items[:MAX_PRODUCTS]
-    print(f"Bước 1: Đọc được {len(items)} url từ {INPUT_JSON}\n")
+    print(f"Bước 1: Đọc được {len(items)} url\n")
 
     if not items:
         print("Không có url nào để cào.")
         return
 
-    # === Bước 2: Cào chi tiết — mỗi sản phẩm = 1 trình duyệt mới ===
-    print("Bước 2: Cào review từng sản phẩm (mỗi link = trình duyệt mới)...")
     results = []
 
     with sync_playwright() as p:
+        # === MỞ 1 LẦN DÙNG CHUNG ===
+        brw, ctx, pg = launch_browser(p)   # Tạo 1 trình duyệt duy nhất
+
         for idx, item in enumerate(items, start=1):
-            brw = None
             try:
-                brw, ctx, pg = launch_browser(p)
+                # KHÔNG tạo trình duyệt mới, chỉ goto thôi
                 rows = scrape_product(pg, item)
                 results.extend(rows)
 
@@ -563,15 +553,17 @@ def main():
                 err = rows[0]["error"]
                 status = f"⚠️ {err}" if err else f"✅ {n_rv} review"
                 print(f"  [{idx}/{len(items)}] {status} | {item['url']}")
+                
+                # Xóa bộ nhớ đệm giữa các sản phẩm
+                pg.wait_for_timeout(200)
+                pg.evaluate("window.scrollTo(0,0)")
+                
             except Exception as e:
                 print(f"  [{idx}/{len(items)}] ❌ Lỗi: {str(e)[:100]} | {item['url']}")
                 row = {c: None for c in COLUMNS}
                 row.update({"url": item["url"], "name": item.get("name"),
                             "error": str(e)[:200]})
                 results.append(row)
-            finally:
-                if brw:
-                    brw.close()
 
             if idx % CHECKPOINT_EVERY == 0:
                 save(results)
@@ -579,7 +571,8 @@ def main():
 
             random_sleep(DELAY_MIN, DELAY_MAX)
 
-    # === Lưu kết quả ===
+        brw.close()  # Đóng 1 lần cuối
+
     df = save(results)
     ok_count = df["error"].isna().sum()
     print(f"\n🎉 HOÀN THÀNH: {len(df)} dòng ({ok_count} thành công) từ {len(items)} sản phẩm")
