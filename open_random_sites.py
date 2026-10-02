@@ -1,3 +1,8 @@
+"""
+Mở ngẫu nhiên 1 thể loại trong web để kiểm tra tính cấu trúc đường dẫn chung của các thể loại
+trong Tiki shop
+"""
+
 from playwright.sync_api import sync_playwright
 import csv
 
