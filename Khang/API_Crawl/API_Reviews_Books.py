@@ -68,7 +68,7 @@ from urllib3.util.retry import Retry
 # ============================================================
 
 # ID category hiện tại
-CATEGORY_ID = 847
+CATEGORY_ID = 444
 
 # Số review lấy trong mỗi request
 # Có thể thay đổi, ví dụ 10, 20...
@@ -88,18 +88,18 @@ REVIEW_API_URL = "https://tiki.vn/api/v2/reviews"
 # 2. ĐƯỜNG DẪN FILE
 # ============================================================
 
-PRODUCT_FILE = f"data/products/category_{CATEGORY_ID}.csv"
+PRODUCT_FILE = f"Khang/API_Crawl/data/products/category_{CATEGORY_ID}.csv"
 
-REVIEW_DIR = "data/reviews"
+REVIEW_DIR = "Khang/API_Crawl/data/reviews"
 
 REVIEW_FILE = f"{REVIEW_DIR}/category_{CATEGORY_ID}_reviews.csv"
 
-CHECKPOINT_FILE = "data/review_checkpoint.csv"
+CHECKPOINT_FILE = "Khang/API_Crawl/data/review_checkpoint.csv"
 
 
 # Tạo thư mục nếu chưa tồn tại
 os.makedirs(REVIEW_DIR, exist_ok=True)
-os.makedirs("data", exist_ok=True)
+os.makedirs("Khang/API_Crawl/data", exist_ok=True)
 
 
 # ============================================================
