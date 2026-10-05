@@ -7,7 +7,7 @@ Dự án thu thập dữ liệu sách và bình luận sách từ hệ thống T
 Quá trình thu thập dữ liệu được thực hiện theo thứ tự:
 
 ```text
-API Review Books
+API Categories
        │
        ▼
 Lấy danh sách các thể loại con
