@@ -1,0 +1,285 @@
+﻿id,parent_id,name,url_key,product_count,children_count
+839,316,Sách văn học,sach-van-hoc,10000,21
+4933,839,Du ký,du-ky,390,0
+7358,839,Light novel,light-novel,1365,0
+5244,839,Phê Bình - Lý Luận Văn Học,phe-binh-ly-luan-van-hoc,874,0
+5245,839,Phóng sự - Ký sự - Bút ký,phong-su-ky-su,1446,2
+67992,5245,Bút Ký - Tự Truyện,but-ky-tu-truyen,,0
+67993,5245,Phóng Sự - Ký Sự,phong-su-ky-su,,0
+842,839,Tác phẩm kinh điển,tac-pham-kinh-dien,4719,2
+67994,842,Tác Phẩm Kinh Điển Nước Ngoài,tac-pham-kinh-dien-nuoc-ngoai,,0
+67995,842,Tác Phẩm Kinh Điển Việt Nam,tac-pham-kinh-dien-viet-nam,,0
+446,839,Thơ,tho,795,0
+843,839,Tiểu sử - Hồi ký,tieu-su-hoi-ky,3055,0
+844,839,Tiểu Thuyết,tieu-thuyet,8008,2
+67996,844,Tiểu Thuyết Phương Đông,tieu-thuyet-phuong-dong,,0
+67997,844,Tiểu Thuyết Phương Tây,tieu-thuyet-phuong-tay,,0
+8973,839,Tranh Truyện,tranh-truyen,435,0
+10079,839,Truyện cổ tích - Ngụ ngôn,truyen-co-tich-ngu-ngon,244,2
+68018,10079,Truyện Chữ cổ tích - Ngụ ngôn,truyen-chu-co-tich-ngu-ngon,,0
+68019,10079,Truyện Tranh cổ tích - Ngụ ngôn,truyen-tranh-co-tich-ngu-ngon,,0
+444,839,Truyện cười,truyen-cuoi,146,0
+6750,839,Truyện dài,truyen-dai,3044,0
+1367,839,Truyện đam mỹ,truyen-dam-my,1604,2
+67792,1367,Truyện Tranh Đam Mỹ,truyen-tranh-dam-my,,0
+67998,1367,Truyện Chữ Đam Mỹ,truyen-chu-dam-my,,0
+840,839,Truyện Giả tưởng - Huyền Bí - Phiêu Lưu,truyen-gia-tuong-huyen-bi-phieu-luu,1747,0
+639,839,Truyện kiếm hiệp,kiem-hiep-vo-hiep,58,0
+665,839,Truyện kinh dị,truyen-kinh-di,840,0
+845,839,Truyện ngắn - Tản văn - Tạp Văn,truyen-ngan-tan-van-tap-van,6714,2
+67999,845,Truyện ngắn - Tản văn - Tạp Văn Nước Ngoài,truyen-ngan-tan-van-tap-van-nuoc-ngoai,,0
+68000,845,Truyện ngắn - Tản văn - Tạp Văn Việt Nam,truyen-ngan-tan-van-tap-van-viet-nam,,0
+1521,839,Truyện ngôn tình,ngon-tinh,884,0
+664,839,Truyện trinh thám,trinh-tham,2807,0
+26904,839,Ca Dao - Tục Ngữ - Thành ngữ,ca-dao-tuc-ngu-thanh-ngu,73,3
+67989,26904,Ca Dao,ca-dao,,0
+67990,26904,Thành Ngữ,thanh-ngu,,0
+67991,26904,Tục Ngữ,tuc-ngu,,0
+26902,839,Sách ảnh,sach-anh,92,0
+846,316,Sách kinh tế,sach-kinh-te,10000,9
+847,846,Bài học kinh doanh,bai-hoc-kinh-doanh,4622,0
+483,846,Sách doanh nhân,sach-doanh-nhan,1185,0
+372,846,Sách khởi nghiệp,sach-khoi-nghiep,1289,0
+593,846,Sách kinh tế học,sach-kinh-te-hoc,1264,7
+67897,593,Bảo hiểm,bao-hiem,,0
+67898,593,Chính sách kinh tế & phát triển,chinh-sach-kinh-te-phat-trien,,0
+67899,593,Kinh tế vi mô,kinh-te-vi-mo,,0
+67900,593,Kinh tế vĩ mô,kinh-te-vi-mo,,0
+67901,593,Sách kinh tế học - khác,sach-kinh-te-hoc-khac,,0
+67902,593,Thuế,thue,,0
+67903,593,Tiền kỹ thuật số,tien-ky-thuat-so,,0
+385,846,Sách kỹ năng làm việc,sach-ky-nang-lam-viec,4365,0
+848,846,Sách Marketing - Bán hàng ,sach-marketing-ban-hang,3535,0
+849,846,"Sách quản trị, lãnh đạo",sach-quan-tri-lanh-dao,2631,0
+4144,846,Sách quản trị nhân lực,sach-quan-tri-nhan-luc,459,0
+67904,846,Sách tài chính,sach-tai-chinh,2049,10
+369,67904,Kế toán,ke-toan,,0
+5246,67904,Sách tài chính - khác,sach-tai-chinh-khac,,0
+67910,67904,Đầu tư,dau-tu,,0
+67911,67904,Huy động vốn,huy-dong-von,,0
+67912,67904,Kỹ thuật tài chính,ky-thuat-tai-chinh,,0
+67913,67904,Quản lý rủi ro tài chính,quan-ly-rui-ro-tai-chinh,,0
+67914,67904,Quản lý tài sản,quan-ly-tai-san,,0
+67915,67904,Tài chính cá nhân,tai-chinh-ca-nhan,,0
+67916,67904,Tài chính công,tai-chinh-cong,,0
+67918,67904,Tài chính doanh nghiệp,tai-chinh-doanh-nghiep,,0
+393,316,Sách thiếu nhi ,sach-truyen-thieu-nhi,10000,9
+852,393,Đạo đức - Kỹ năng sống,bai-hoc-dao-duc,2802,0
+853,393,Kiến thức - Bách khoa,kien-thuc-ky-nang,7764,0
+856,393,Tô màu - Luyện chữ  ,to-mau-luyen-chu,2450,0
+1753,393,Truyện cổ tích,truyen-co-tich,529,0
+854,393,Truyện kể cho bé,truyen-ke-cho-be,2060,0
+6040,393,Truyện tranh Ehon,ehon-nhat-ban,1454,0
+855,393,Truyện tranh thiếu nhi,truyen-tranh-thieu-nhi,4247,0
+1754,393,Văn học thiếu nhi,van-hoc-thieu-nhi,4254,0
+67953,393,Sách chuyển động -Tương tác,sach-chuyen-dong-tuong-tac,513,0
+870,316,Sách kỹ năng sống,sach-ky-nang-song,10000,4
+871,870,Sách tư duy - Kỹ năng sống,sach-ky-nang-song,10000,0
+716,870,Sách hướng nghiệp,sach-huong-nghiep,1438,0
+67929,870,Sách kỹ năng mềm,sach-ky-nang-mem,7669,9
+872,67929,Nghệ thuật sống,nghe-thuat-song,,0
+67935,67929,Kỹ năng Giải quyết vấn đề,ky-nang-giai-quyet-van-de,,0
+67936,67929,Kỹ Năng Giao Tiếp,ky-nang-giao-tiep,,0
+67937,67929,Kỹ Năng Khác,ky-nang-khac,,0
+67940,67929,Kỹ năng Quản lí thời gian,ky-nang-quan-li-thoi-gian,,0
+67941,67929,Kỹ năng Quản lý cảm xúc,ky-nang-quan-ly-cam-xuc,,0
+67942,67929,Kỹ Năng Sáng Tạo,ky-nang-sang-tao,,0
+67943,67929,Kỹ năng Teamwork,ky-nang-teamwork,,0
+67944,67929,Sách Chữa Lành,sach-chua-lanh,,0
+67945,870,Sách tâm lý học,sach-tam-ly-hoc,960,3
+67946,67945,Sách tâm lý học - khác,sach-tam-ly-hoc-khac,,0
+67947,67945,Tâm lý học hành vi,tam-ly-hoc-hanh-vi,,0
+67950,67945,Tâm lý học tội phạm,tam-ly-hoc-toi-pham,,0
+2527,316,Nuôi dạy con,nuoi-day-con,6193,6
+6138,2527,Sách Thai Giáo,sach-thai-giao,269,3
+68028,6138,Dinh dưỡng thai kỳ,dinh-duong-thai-ky,,0
+68029,6138,Sức khỏe mẹ bầu,suc-khoe-me-bau,,0
+68030,6138,Thai giáo,thai-giao,,0
+3271,2527,Sách Kiến Thức - Kỹ Năng Cho Trẻ,sach-ky-nang-cho-be,1265,0
+3320,2527,Cẩm nang làm cha mẹ,cam-nang-lam-cha-me,3682,0
+3272,2527,Sách Dinh Dưỡng - Sức Khỏe Cho Bé,sach-dinh-duong-suc-khoe-cho-be,458,2
+68026,3272,Chăm sóc sức khỏe em bé,cham-soc-suc-khoe-em-be,,0
+68027,3272,Sách ăn dặm cho bé,sach-an-dam-cho-be,,0
+68020,2527,Giáo dục tuổi teen,giao-duc-tuoi-teen,50,0
+68021,2527,Phương pháp giáo dục trẻ,phuong-phap-giao-duc-tre,470,4
+68022,68021,Phương pháp giáo dục con của người Do Thái,phuong-phap-giao-duc-con-cua-nguoi-do-thai,,0
+68023,68021,Phương pháp giáo dục con của người Nhật,phuong-phap-giao-duc-con-cua-nguoi-nhat,,0
+68024,68021,Phương pháp giáo dục khác,phuong-phap-giao-duc-khac,,0
+68025,68021,Phương pháp giáo dục Montessori,phuong-phap-giao-duc-montessori,,0
+2321,316,Sách Giáo Khoa - Giáo Trình,sach-giao-khoa-giao-trinh,1554,4
+16660,2321,Sách Giáo Khoa Cấp 1,sach-giao-khoa-cap-1,292,0
+16662,2321,Sách Giáo Khoa Cấp 2,sach-giao-khoa-cap-2,190,0
+16664,2321,Sách Giáo Khoa Cấp 3,sach-giao-khoa-cap-3,194,0
+6991,2321,Giáo Trình Đại Học - Cao Đẳng,gia-trinh-dai-hoc-cao-dang,882,9
+67844,6991,Giáo trình đại cương,giao-trinh-dai-cuong,,0
+67845,6991,Giáo trình đại học - cao đẳng - khác,giao-trinh-dai-hoc-cao-dang-khac,,0
+67846,6991,Kinh tế - Tài chính - Quản trị,kinh-te-tai-chinh-quan-tri,,0
+67847,6991,Kỹ sư - Điện tử - Công nghệ thông tin,ky-su-dien-tu-cong-nghe-thong-tin,,0
+67848,6991,Luật,luat,,0
+67849,6991,Ngôn ngữ học,ngon-ngu-hoc,,0
+67850,6991,Sư phạm,su-pham,,0
+67851,6991,Tài nguyên - Môi trường,tai-nguyen-moi-truong,,0
+67852,6991,Y - Dược,y-duoc,,0
+887,316,Sách Học Ngoại Ngữ,ngoai-ngu-tu-dien,8163,5
+1856,887,Sách Học Tiếng Anh,sach-hoc-tieng-anh,4214,8
+67853,1856,Luyện thi IELTS,luyen-thi-ielts,,0
+67854,1856,Luyện thi TOEFL,luyen-thi-toefl,,0
+67855,1856,Luyện thi TOEIC,luyen-thi-toeic,,0
+67856,1856,Ngữ pháp Tiếng Anh,ngu-phap-tieng-anh,,0
+67857,1856,Sách học tiếng anh - khác,sach-hoc-tieng-anh-khac,,0
+67858,1856,Tiếng Anh giao tiếp,tieng-anh-giao-tiep,,0
+67859,1856,Từ Vựng Tiếng Anh,tu-vung-tieng-anh,,0
+67860,1856,Tiếng Anh Thiếu Nhi,tieng-anh-thieu-nhi,,0
+1524,887,Sách Học Tiếng Nhật,sach-hoc-tieng-nhat,1438,5
+67872,1524,Luyện thi Tiếng Nhật,luyen-thi-tieng-nhat,,0
+67873,1524,Ngữ pháp Tiếng Nhật,ngu-phap-tieng-nhat,,0
+67874,1524,Sách học tiếng nhật - khác,sach-hoc-tieng-nhat-khac,,0
+67875,1524,Tiếng Nhật Giao Tiếp,tieng-nhat-giao-tiep,,0
+67876,1524,Từ Vựng Tiếng Nhật,tu-vung-tieng-nhat,,0
+1526,887,Sách Học Tiếng Hàn,sach-hoc-tieng-han,371,5
+67861,1526,Giao tiếp Tiếng Hàn,giao-tiep-tieng-han,,0
+67862,1526,Luyện thi TOPIK,luyen-thi-topik,,0
+67863,1526,Ngữ pháp Tiếng Hàn,ngu-phap-tieng-han,,0
+67864,1526,Sách học tiếng hàn - khác,sach-hoc-tieng-han-khac,,0
+67865,1526,Từ vựng Tiếng Hàn,tu-vung-tieng-han,,0
+1881,887,Sách Học Tiếng Hoa,sach-hoc-tieng-hoa,1320,6
+67866,1881,Giáo trình Hán ngữ,giao-trinh-han-ngu,,0
+67867,1881,Luyện thi Tiếng Hoa HSK,luyen-thi-tieng-hoa-hsk,,0
+67868,1881,Ngữ pháp Tiếng Hoa,ngu-phap-tieng-hoa,,0
+67869,1881,Sách học tiếng hoa - khác,sach-hoc-tieng-hoa-khac,,0
+67870,1881,Tập viết chữ Hán,tap-viet-chu-han,,0
+67871,1881,Tiếng Hoa Giao Tiếp,tieng-hoa-giao-tiep,,0
+1527,887,Ngoại Ngữ Khác,ngoai-ngu-khac,821,0
+2320,316,Sách Tham Khảo,sach-tham-khao,10000,6
+2248,2320,Sách tham khảo cấp I,sach-tham-khao-cap-i,5345,0
+2249,2320,Sách tham khảo cấp II,sach-tham-khao-cap-ii,4450,0
+2250,2320,Sách tham khảo cấp III,sach-tham-khao-cap-iii,2464,0
+7971,2320,Sách Luyện Thi Đại Học - Cao Đẳng,sach-luyen-thi-dai-hoc-cao-dang,511,0
+9997,2320,Thẻ luyện thi,the-luyen-thi,164,0
+18372,2320,Sách chuyên đề,sach-chuyen-de,2549,0
+897,316,Từ Điển,tu-dien,554,7
+898,897,Từ Điển Tiếng Anh,tu-dien-tieng-anh,259,3
+68015,898,Từ Điển Anh - Anh,tu-dien-anh-anh,,0
+68016,898,Từ Điển Anh - Việt,tu-dien-anh-viet,,0
+68017,898,Từ Điển Việt - Anh,tu-dien-viet-anh,,0
+900,897,Từ Điển Tiếng Trung,tu-dien-tieng-trung,53,0
+899,897,Từ Điển Tiếng Hàn,tu-dien-tieng-han,21,0
+901,897,Từ Điển Tiếng Nhật,tu-dien-tieng-nhat,38,0
+902,897,Từ Điển Tiếng Pháp,tu-dien-tieng-phap,15,0
+903,897,Từ Điển Tiếng Việt,tu-dien-tieng-viet,95,0
+904,897,Từ Điển Ngôn Ngữ Khác,tu-dien-ngon-ngu-khac,74,0
+873,316,Sách Kiến Thức Tổng Hợp,sach-kien-thuc-tong-hop,10000,6
+9733,873,Kiến Thức Bách Khoa,kien-thuc-bach-khoa,10000,0
+886,873,Lĩnh vực khác,linh-vuc-khac,4344,0
+7671,873,Sách Chiêm Tinh - Horoscope,sach-chiem-tinh-horoscope,719,5
+67887,7671,Chiêm Tinh Học,chiem-tinh-hoc,,0
+67888,7671,Sách chiêm tinh - horoscope - khác,sach-chiem-tinh-horoscope-khac,,0
+67889,7671,Tarot,tarot,,0
+67890,7671,Thần Số Học - Nhân Số Học,than-so-hoc-nhan-so-hoc,,0
+67892,7671,Tử Vi,tu-vi,,0
+877,873,Sách giáo dục,sach-giao-duc,2102,0
+867,873,Sách Phong Thủy - Kinh Dịch,sach-phong-thuy-kinh-dich,748,2
+67891,867,Kinh Dịch Học,kinh-dich-hoc,,0
+67893,867,Phong Thủy,phong-thuy,,0
+9120,873,Triết Học,triet-hoc,1427,3
+67894,9120,Triết học khác,triet-hoc-khac,,0
+67895,9120,Triết Học phương Đông,triet-hoc-phuong-dong,,0
+67896,9120,Triết Học phương Tây,triet-hoc-phuong-tay,,0
+879,316,Sách Khoa Học - Kỹ Thuật,khoa-hoc-ky-thuat,1384,2
+67882,879,Sách khoa học,sach-khoa-hoc,881,0
+67883,879,Sách kỹ thuật,sach-ky-thuat,426,3
+67884,67883,Kỹ Thuật Điện,ky-thuat-dien,,0
+67885,67883,Kỹ Thuật khác,ky-thuat-khac,,0
+67886,67883,Kỹ Thuật Ô Tô - Xe máy,ky-thuat-o-to-xe-may,,0
+880,316,Sách Lịch sử,lich-su-dia-ly,6393,2
+9724,880,Lịch Sử Việt Nam,lich-su-viet-nam,4045,0
+9725,880,Lịch Sử Thế Giới,lich-su-the-gioi,2362,0
+881,316,Điện Ảnh - Nhạc - Họa,dien-anh-nhac-hoa,1381,3
+9727,881,Âm Nhạc - Điện Ảnh,am-nhac,480,8
+67793,9727,Âm nhạc - điện ảnh - khác,am-nhac-dien-anh-khac,,0
+67803,9727,Kỹ thuật Nhiếp Ảnh,ky-thuat-nhiep-anh,,0
+67804,9727,Nhạc lý,nhac-ly,,0
+67805,9727,Sách học Đàn Guitar,sach-hoc-dan-guitar,,0
+67806,9727,Sách học Đàn Organ,sach-hoc-dan-organ,,0
+67807,9727,Sách học Đàn Piano,sach-hoc-dan-piano,,0
+67808,9727,Sách học thổi sáo,sach-hoc-thoi-sao,,0
+67809,9727,Vở chép nhạc,vo-chep-nhac,,0
+9728,881,Mỹ Thuật - Kiến Trúc,my-thuat-kien-truc,668,3
+67810,9728,Họa sĩ nổi tiếng,hoa-si-noi-tieng,,0
+67811,9728,Mỹ thuật - Kiến trúc Thế giới,my-thuat-kien-truc-the-gioi,,0
+67812,9728,Mỹ thuật - Kiến trúc Việt Nam,my-thuat-kien-truc-viet-nam,,0
+4142,881,Sách Tô Màu Dành Cho Người Lớn,sach-to-mau-danh-cho-nguoi-lon,239,0
+1084,316,"Truyện Tranh, Manga, Comic",truyen-tranh,8502,0
+861,316,Sách Tôn Giáo - Tâm Linh,ton-giao-tam-linh,6870,3
+67978,861,Công Giáo,cong-giao,257,0
+67979,861,Phật giáo,phat-giao,4976,0
+67980,861,Tôn Giáo - Tâm Linh Khác,ton-giao-tam-linh-khac,1217,0
+857,316,Sách Văn Hóa - Địa Lý - Du Lịch,sach-van-hoa-dia-ly-du-lich,1904,3
+858,857,Sách Danh Nhân,sach-danh-nhan,462,2
+67981,858,Danh nhân Nước Ngoài,danh-nhan-nuoc-ngoai,,0
+67982,858,Danh nhân Việt Nam,danh-nhan-viet-nam,,0
+859,857,Sách Địa Danh - Du Lịch,sach-dia-danh-du-lich,469,4
+67983,859,Châu Á,chau-a,,0
+67984,859,Châu Âu,chau-au,,0
+67985,859,Châu Lục khác,chau-luc-khac,,0
+67986,859,Châu Mỹ,chau-my,,0
+6992,857,Sách Phong Tục - Tập Quán,sach-phong-tuc-tap-quan,972,2
+67987,6992,Sách Phong Tục - Tập Quán Nước ngoài,sach-phong-tuc-tap-quan-nuoc-ngoai,,0
+67988,6992,Sách Phong Tục - Tập Quán Việt Nam,sach-phong-tuc-tap-quan-viet-nam,,0
+875,316,Sách Chính Trị - Pháp Lý,chinh-tri-phap-ly,3459,2
+6993,875,Lý Luận Chính Trị,ly-luan-chinh-tri,1481,4
+67833,6993,Chính trị đảng phái,chinh-tri-dang-phai,,0
+67835,6993,Chủ nghĩa xã hội - Tư tưởng Hồ Chí Minh,chu-nghia-xa-hoi-tu-tuong-ho-chi-minh,,0
+67836,6993,Kinh tế chính trị,kinh-te-chinh-tri,,0
+67838,6993,Triết học,triet-hoc,,0
+883,875,Luật - Văn Bản Luật,phap-luat,1978,12
+67817,883,Luật Dân sự,luat-dan-su,,0
+67822,883,Luật Đất đai,luat-dat-dai,,0
+67823,883,Luật Hành chính,luat-hanh-chinh,,0
+67824,883,Luật Hình sự,luat-hinh-su,,0
+67825,883,Luật Hôn nhân và Gia đình,luat-hon-nhan-va-gia-dinh,,0
+67826,883,Luật Kinh tế,luat-kinh-te,,0
+67827,883,Luật Lao động,luat-lao-dong,,0
+67828,883,Luật Nhà nước,luat-nha-nuoc,,0
+67829,883,Luật Quốc tế,luat-quoc-te,,0
+67830,883,Luật Tài chính,luat-tai-chinh,,0
+67831,883,Luật Tố tụng dân sự,luat-to-tung-dan-su,,0
+67832,883,Luật Tố tụng hình sự,luat-to-tung-hinh-su,,0
+882,316,Sách Nông - Lâm - Ngư Nghiệp,nong-lam-ngu-nghiep,267,0
+876,316,Sách Công Nghệ Thông Tin,cong-nghe-thong-tin,598,3
+9721,876,Tin Học Văn Phòng,tin-hoc-van-phong,332,0
+9723,876,Lập Trình,lap-trinh,209,0
+9722,876,Thiết Kế - Đồ Họa,thiet-ke-do-hoa,58,4
+67957,9722,Làm phim,lam-phim,,0
+67958,9722,Thiết kế đồ họa,thiet-ke-do-hoa,,0
+67961,9722,Thiết kế kiến trúc,thiet-ke-kien-truc,,0
+67962,9722,Thiết kế nội thất,thiet-ke-noi-that,,0
+885,316,Sách Y Học,y-hoc,3636,3
+68001,885,Sách Y Học Cổ Truyền,sach-y-hoc-co-truyen,445,0
+68002,885,Sách Y Học Hiện Đại,sach-y-hoc-hien-dai,1606,0
+68003,885,Sách Y Học Khác,sach-y-hoc-khac,1384,0
+1468,316,Tạp Chí - Catalogue,tap-chi-catalogue,461,0
+868,316,Sách Tâm lý - Giới tính,tam-ly-gioi-tinh,1231,2
+850,868,Sách Tâm Lý Tuổi Teen,sach-tam-ly-tuoi-teen,841,0
+6994,868,Sách Hôn Nhân - Giới Tính,sach-hon-nhan-gioi-tinh,395,0
+862,316,Sách Thường Thức - Gia Đình,sach-thuong-thuc-gia-dinh,1796,4
+863,862,Chăm sóc sức khỏe,cham-soc-suc-khoe,763,8
+67965,863,Ăn kiêng - Giảm cân,an-kieng-giam-can,,0
+67966,863,An toàn & Sơ cứu,an-toan-so-cuu,,0
+67970,863,Sự lão hóa - trẻ hỏa,su-lao-hoa-tre-hoa,,0
+67973,863,Sức khỏe nam giới,suc-khoe-nam-gioi,,0
+67974,863,Sức khỏe phụ nữ,suc-khoe-phu-nu,,0
+67975,863,Sức khỏe tinh thần,suc-khoe-tinh-than,,0
+67976,863,Thể dục - Thể hình,the-duc-the-hinh,,0
+67977,863,Tiêm chủng,tiem-chung,,0
+6989,862,May - Thêu - Thời Trang,may-theu-thoi-trang,72,0
+4902,862,Sách Làm Đẹp,sach-lam-dep,146,0
+865,862,Sách Nấu ăn,sach-day-nau-an,820,0
+6905,316,Thể Dục - Thể Thao,the-duc-the-thao,537,5
+68004,6905,Chạy bộ,chay-bo,78,0
+68005,6905,Đối Kháng,doi-khang,31,0
+68006,6905,Thể dục - thể thao - khác,the-duc-the-thao-khac,267,0
+68008,6905,Thể thao trí tuệ,the-thao-tri-tue,39,2
+68013,68008,Cờ Tướng,co-tuong,,0
+68014,68008,Cờ Vua,co-vua,,0
+68009,6905,Yoga,yoga,100,0

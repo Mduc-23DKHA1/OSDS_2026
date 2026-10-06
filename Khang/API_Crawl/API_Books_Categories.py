@@ -67,10 +67,10 @@ CATEGORY_ID = 67992
 URL_KEY = "but-ky-tu-truyen"
 
 # Nếu CATEGORY_MODE = "random"
-CATEGORY_CSV = "data/full_url_link.csv"
+CATEGORY_CSV = "data/SachThieuNhi_url_link.csv"
 
 # File output
-OUTPUT_DIR = "data/products"
+OUTPUT_DIR = "Khang/API_Crawl/data/products"
 
 # Nếu config thì file sẽ có dạng:
 # data/products/category_900.csv
@@ -497,10 +497,10 @@ def run_all_categories():
     """Đọc toàn bộ danh mục từ CSV và chạy lần lượt"""
     print("=" * 60)
     print("ĐỌC DANH SÁCH DANH MỤC TỪ FILE...")
-    df = pd.read_csv("data/full_url_link.csv")
+    df = pd.read_csv("Khang/API_Crawl/data/SachThieuNhi_url_link.csv")
     
     if df.empty:
-        raise ValueError("File full_url_link.csv không có dữ liệu!")
+        raise ValueError("File SachThieuNhi_url_link.csv không có dữ liệu!")
     
     total = len(df)
     print(f"Tìm thấy {total} danh mục")
