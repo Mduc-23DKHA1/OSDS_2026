@@ -8,6 +8,10 @@
 import json
 import csv
 
+# ================= CONFIG =================
+INPUT_JSON_FILE = "data/categories_316.json"
+OUTPUT_FILE = "data/categories.csv"
+# ==========================================
 
 def dfs_category(cur, parent_id, rows):
     """
@@ -52,7 +56,7 @@ def main():
     # =========================
     # Đọc JSON
     # =========================
-    with open("categories_316.json", "r", encoding="utf-8") as f:
+    with open(INPUT_JSON_FILE, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     rows = []
@@ -73,14 +77,14 @@ def main():
         "children_count",
     ]
 
-    with open("categories.csv", "w", newline="", encoding="utf-8-sig") as f:
+    with open(OUTPUT_FILE, "w", newline="", encoding="utf-8-sig") as f:
 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
 
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"Đã ghi {len(rows)} categories " f"vào categories.csv")
+    print(f"Đã ghi {len(rows)} categories " f"vào {OUTPUT_FILE}")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,14 @@ Sau đó trả về file json với tên gọi "categories_316.json" nằm trong
 
 import requests
 import json
+import os
+
+# ================= CONFIG =================
+DATA_DIR = "data"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+OUTPUT_FILE = os.path.join(DATA_DIR, "categories_316.json")
+# ==========================================
 
 url = "https://tiki.vn/api/v2/categories"
 
@@ -17,5 +25,5 @@ response.raise_for_status()
 
 data = response.json()
 
-with open("categories_316.json", "w", encoding="utf-8") as f:
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     json.dump(data, f, ensure_ascii=False, indent=2)
