@@ -12,7 +12,7 @@
 """
 
 import json
-with open("categories_316.json", "r", encoding="utf-8") as f:
+with open("../data/categories_316.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 def check_attributes(categories):
