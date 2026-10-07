@@ -5,7 +5,7 @@ import os
 import sqlite3
 
 FOLDER = os.path.join("Khang", "API_Crawl", "data", "reviews")
-DB_PATH = "Khang/API_Crawl/data/reviews/categories.db"
+DB_PATH = "Khang/API_Crawl/data/reviews/categoriesReview.db"
 
 # Kết nối CSDL và khởi tạo Bảng
 conn = sqlite3.connect(DB_PATH)

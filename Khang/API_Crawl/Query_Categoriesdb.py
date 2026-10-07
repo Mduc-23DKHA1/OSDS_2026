@@ -1,6 +1,6 @@
 import sqlite3
 def connect_db():
-    return sqlite3.connect("Khang/API_Crawl/data/reviews/categories.db")
+    return sqlite3.connect("Khang/API_Crawl/data/reviews/categoriesReview.db")
 
 def run_query():
     conn = connect_db()
@@ -11,7 +11,7 @@ def option_1():
     conn, cursor = run_query()
 
     # 1. Đổi 'users' thành 'products'
-    sql = "SELECT CustomerID, content, star, time_review, BookID, spid FROM CategoriesReview"
+    sql = "SELECT CustomerID, content, star, time_review, BookID, spid FROM CategoriesReview LIMIT 100"
     cursor.execute(sql)
     products = cursor.fetchall()
     conn.close()
