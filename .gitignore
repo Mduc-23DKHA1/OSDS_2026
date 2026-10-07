@@ -1,9 +1,3 @@
 .venv/*
 data/*
-<<<<<<< HEAD
-Khang/API_Crawl/data/*
-=======
-Khang/data/*
-*.csv
-*.json
->>>>>>> origin/main
+csv/*
