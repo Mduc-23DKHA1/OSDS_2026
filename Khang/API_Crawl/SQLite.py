@@ -1,3 +1,4 @@
+# Khai báo thư viện và cấu hình đường dẫn
 import csv
 import glob
 import os
@@ -6,6 +7,7 @@ import sqlite3
 FOLDER = os.path.join("Khang", "API_Crawl", "data", "reviews")
 DB_PATH = "Khang/API_Crawl/data/reviews/categories.db"
 
+# Kết nối CSDL và khởi tạo Bảng
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
@@ -22,6 +24,7 @@ CREATE TABLE IF NOT EXISTS CategoriesReview (
 );
 """)
 
+# Chuẩn bị câu lệnh SQL và các hàm ép kiểu dữ liệu
 insert_sql = """
 INSERT INTO CategoriesReview
     (CustomerID, content, star, time_review, BookID, spid)
@@ -36,6 +39,7 @@ def to_text(value):
     value = (value or "").strip()
     return value if value else None
 
+# Duyệt từng file CSV và đọc dữ liệu vào RAM
 total_read = 0
 for file_path in sorted(glob.glob(os.path.join(FOLDER, "*.csv"))):
     rows = []
@@ -50,11 +54,13 @@ for file_path in sorted(glob.glob(os.path.join(FOLDER, "*.csv"))):
                 to_int(r.get("spid")),
             ))
 
+# Chèn dữ liệu vào CSDL và in tiến trình
     cursor.executemany(insert_sql, rows)
     conn.commit()
     total_read += len(rows)
     print(f"{os.path.basename(file_path)}: đọc {len(rows)} dòng, đã import {len(rows)} dòng")
 
+# Kiểm tra tổng số dòng và đóng kết nối
 cursor.execute("SELECT COUNT(*) FROM CategoriesReview")
 total_db = cursor.fetchone()[0]
 print(f"Tổng dòng đọc từ CSV: {total_read} | Tổng dòng trong bảng: {total_db}")
