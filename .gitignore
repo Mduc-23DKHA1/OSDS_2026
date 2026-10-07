@@ -1,3 +1,5 @@
 .venv/*
 data/*
 Khang/data/*
+*.csv
+*.json
