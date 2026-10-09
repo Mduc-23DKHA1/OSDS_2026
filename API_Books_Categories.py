@@ -394,8 +394,13 @@ def save_csv(products, category_id):
         "category_id",
     ]
 
-    df = df[columns]
 
+    # Nếu không có data -> Return 
+    if df.empty:
+        print("[ERROR] Không thể tạo DataFrame do không có data trong thể loại này")
+        return
+
+    df = df[columns]
     df.to_csv(output_file, index=False, encoding="utf-8-sig")
 
     print()
@@ -430,21 +435,8 @@ def should_crawl(category_id):
         df_existing = pd.read_csv(output_file)
         current_count = len(df_existing)
 
-        expected_count = 2000
-        threshold = expected_count * 0.95  # 1900 sách
-
-        print(f"[CHECK] Category {category_id}: " f"{current_count} sách hiện có")
-
-        if current_count >= threshold:
-            print(f"[SKIP] Đã đạt ngưỡng {threshold:.0f} sách. " "Không gọi API.")
-            return False
-
-        print(
-            f"[RECRAWL] Chỉ có {current_count} sách, "
-            f"thấp hơn ngưỡng {threshold:.0f}. "
-            "Cho phép gọi API."
-        )
-        return True
+        print(f"[CHECK] đã có file, {current_count} sách hiện có")
+        return False
 
     except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError) as e:
         print(f"[WARNING] Không đọc được file {output_file}: {e}")
