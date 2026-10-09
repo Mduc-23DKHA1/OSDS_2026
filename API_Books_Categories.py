@@ -53,38 +53,27 @@ import pandas as pd
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-# ============================================================
-# 1. CONFIG
-# ============================================================
+# =============== CONFIG =================
+"""
+    "config"      -> dùng CATEGORY_ID + URL_KEY bên dưới
+    "all"         -> lấy tất cả các category từ CATEGORY_CSV
+"""
 
-# Chọn cách lấy category:
-# "config"  -> dùng CATEGORY_ID + URL_KEY bên dưới
-# "random"  -> lấy ngẫu nhiên 1 category từ CATEGORY_CSV
-CATEGORY_MODE = "config"
-
-# Nếu CATEGORY_MODE = "config"
-CATEGORY_ID = 847
-URL_KEY = "bai-hoc-kinh-doanh"
-
-# Nếu CATEGORY_MODE = "random"
-CATEGORY_CSV = "data/full_url_link.csv"
-
-# File output
+# ------------------------------------------------------------
+CATEGORY_MODE = "all"        # Config hiện tại
+# ------------------------------------------------------------
+CATEGORY_ID = 847            # Nếu CATEGORY_MODE = "config"
+# ------------------------------------------------------------
+CATEGORY_CSV = "data/full_url_link.csv"     # Nếu CATEGORY_MODE = "all"
+# ------------------------------------------------------------
 OUTPUT_DIR = "data/products"
 
-# Nếu config thì file sẽ có dạng:
-# data/products/category_900.csv
+# DATA có dạng : data/products/category_<ID>.csv
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, f"category_{CATEGORY_ID}.csv")
 
-
-# ============================================================
-# 2. TIKI API
-# ============================================================
-
+# ======================== API TIKI ===========================
 API_URL = "https://tiki.vn/api/personalish/v1/blocks/listings"
 
-
-# Các params cố định
 FIXED_PARAMS = {
     "limit": 40,
     "include": "advertisement",
@@ -93,11 +82,7 @@ FIXED_PARAMS = {
     "trackity_id": "065c7957-441c-ad9d-524e-4f326a13bc37",
 }
 
-
-# ============================================================
-# 3. CẤU HÌNH RETRY
-# ============================================================
-
+# ======================== CẤU HÌNH RETRY & Session ============================
 # Retry HTTP tự động đối với những lỗi tạm thời
 RETRY_STRATEGY = Retry(
     total=5,
@@ -110,11 +95,7 @@ RETRY_STRATEGY = Retry(
     raise_on_status=False,
 )
 
-
-# ============================================================
-# 4. TẠO SESSION
-# ============================================================
-
+# Session
 session = requests.Session()
 
 adapter = HTTPAdapter(max_retries=RETRY_STRATEGY)
@@ -135,57 +116,41 @@ session.headers.update(
 )
 
 
-# ============================================================
-# 5. LẤY CATEGORY
-# ============================================================
-
-
+# =========================== RUNNING =================================
 def get_category():
     """
     Trả về:
         category_id
         url_key
     """
+    print("[CATEGORY] Đọc category từ CSV...")
+    df = pd.read_csv(CATEGORY_CSV)
+    features = ["id", "url_key"]
 
+    if df.empty:
+        raise ValueError("CATEGORY_CSV không có dữ liệu.")
+    
     # --------------------------------------------------------
     # Cách 1: lấy từ CONFIG
     # --------------------------------------------------------
 
     if CATEGORY_MODE == "config":
-
         print("[CATEGORY] Dùng category trong CONFIG")
-
-        return CATEGORY_ID, URL_KEY
+        return CATEGORY_MODE, df[features][df["id"] == CATEGORY_ID]
 
     # --------------------------------------------------------
-    # Cách 2: lấy random từ CSV
+    # Cách 2: lấy tất cả từ CSV
     # --------------------------------------------------------
 
-    elif CATEGORY_MODE == "random":
-
-        print("[CATEGORY] Đọc category từ CSV...")
-
-        df = pd.read_csv(CATEGORY_CSV)
-
-        if df.empty:
-            raise ValueError("CATEGORY_CSV không có dữ liệu.")
-
-        # Lấy ngẫu nhiên 1 dòng
-        row = df.sample(n=1, random_state=None).iloc[0]
-
-        category_id = int(row["id"])
-        url_key = row["url_key"]
-
-        print(f"[CATEGORY] Random category: " f"{category_id} | {url_key}")
-
-        return category_id, url_key
+    elif CATEGORY_MODE == "all":
+        return CATEGORY_MODE, df[features]
 
     else:
-        raise ValueError("CATEGORY_MODE phải là 'config' hoặc 'random'")
+        raise ValueError("CATEGORY_MODE phải là 'config' hoặc 'all'")
 
 
 # ============================================================
-# 6. GỌI API MỘT PAGE
+#                       GỌI API MỘT PAGE
 # ============================================================
 
 
@@ -209,7 +174,7 @@ def get_page(category_id, url_key, page):
         {
             "category": category_id,
             "page": page,
-            "urlKey": url_key,
+            "urlKey" : url_key
         }
     )
 
@@ -264,20 +229,17 @@ def get_page(category_id, url_key, page):
 
 
 # ============================================================
-# 7. BÓC TÁCH PRODUCT
+#                        BÓC TÁCH PRODUCT
 # ============================================================
-
-
 def extract_product(product, category_id):
     """
     Chỉ lấy những field cần thiết.
     """
 
     product_id = product.get("id")
-
     url_key = product.get("url_key")
 
-    # Tạo URL sản phẩm
+    # Tạo url sản phẩm nếu chưa có
     product_url = None
 
     if url_key:
@@ -313,23 +275,18 @@ def extract_product(product, category_id):
 
 
 # ============================================================
-# 8. CRAWL TOÀN BỘ CATEGORY
+#                   CRAWL TOÀN BỘ CATEGORY
 # ============================================================
-
-
 def crawl_category(category_id, url_key):
     """
     Crawl từ page 1 cho đến khi xác nhận
     data=[] sau nhiều lần retry.
     """
 
-    all_products = []
-
-    # Dùng set để chống duplicate product
-    seen_ids = set()
+    all_products = []  # Lưu tất cả sản phẩm
+    seen_ids = set()  # Chống duplicate product
 
     page = 1
-
     print()
     print("=" * 60)
     print("START CRAWL")
@@ -338,47 +295,33 @@ def crawl_category(category_id, url_key):
     print("=" * 60)
 
     while True:
-
+        """
+        Vòng lặp chạy cho đến khi xác nhận data=[] sau nhiều lần 3 retry.
+        - Nếu có dữ liệu -> Break và lọc dữ liệu, rồi chuyển sang trang kế
+        - Nếu không có dữ liệu -> thử lại 3 lần để break
+        """
         print()
         print(f"[REQUEST] page={page}")
-
-        # ----------------------------------------------------
-        # Retry khi API trả data=[]
-        # ----------------------------------------------------
 
         empty_retry = 0
 
         while True:
-
             try:
-
                 data = get_page(category_id, url_key, page)
 
-                # --------------------------------------------
-                # Có dữ liệu
-                # --------------------------------------------
-
-                if data:
-
+                if data: # Nếu có dữ liệu
                     print(f"[OK] page={page} " f"-> {len(data)} products")
-
                     break
 
-                # --------------------------------------------
-                # data=[]
-                # --------------------------------------------
-
+                # Nếu không có dữ liệu
                 empty_retry += 1
-
                 print(f"[EMPTY] page={page} " f"-> data=[] " f"(retry {empty_retry}/3)")
 
                 if empty_retry >= 3:
-
                     print(f"[STOP] page={page} " f"-> xác nhận data=[]")
-
                     return all_products
 
-                # Chờ trước khi retry
+                # Chờ 1 khoảng trước khi gọi lại
                 wait_time = 3 * empty_retry
 
                 print(f"[WAIT] {wait_time}s...")
@@ -386,33 +329,30 @@ def crawl_category(category_id, url_key):
                 time.sleep(wait_time)
 
             except requests.RequestException as e:
-
+                """
+                requests sẽ tự retry các lỗi HTTP tạm thời
+                như 429, 500, 503, 504...
+                Và lặp lại đến khi hết timeout thì ném error hoặc trả về data rỗng
+                """
                 print(f"[ERROR] page={page}: {e}")
-
                 print("[INFO] requests đã tự retry " "các lỗi HTTP tạm thời.")
 
-                # Nếu vẫn exception sau Retry của
-                # requests/urllib3 thì nghỉ thêm
                 time.sleep(5)
-
-                # Ở đây không return.
-                # Tiếp tục thử page hiện tại.
 
             except ValueError as e:
-
+                """
+                Response không phải JSON -> dừng.
+                """
                 print(f"[JSON ERROR] page={page}: {e}")
-
                 time.sleep(5)
 
-        # ----------------------------------------------------
-        # BÓC TÁCH SẢN PHẨM
-        # ----------------------------------------------------
-
+        # --------------------------------
+        # Phân tách lấy dữ liệu cần thiết
+        # --------------------------------
         new_count = 0
         duplicate_count = 0
 
         for product in data:
-
             product_id = product.get("id")
 
             # Không có ID -> bỏ
@@ -421,47 +361,30 @@ def crawl_category(category_id, url_key):
 
             # Chống duplicate
             if product_id in seen_ids:
-
                 duplicate_count += 1
                 continue
 
             seen_ids.add(product_id)
-
             row = extract_product(product, category_id)
-
             all_products.append(row)
-
             new_count += 1
 
-        print(
-            f"[EXTRACT] page={page} " f"new={new_count} " f"duplicate={duplicate_count}"
-        )
+        print(f"[EXTRACT] page={page} new={new_count} duplicate={duplicate_count}")
 
         print(f"[TOTAL] {len(all_products)} products")
 
-        # ----------------------------------------------------
-        # PAGE TIẾP THEO
-        # ----------------------------------------------------
+        # -------------------------------
+        # Chuyển sang page kế và lặp lại
+        # -------------------------------
 
         page += 1
-
-        # Nghỉ nhẹ giữa các request
         time.sleep(random.uniform(1.0, 2.0))
 
-
-# ============================================================
-# 9. LƯU CSV
-# ============================================================
-
-
 def save_csv(products, category_id):
-
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-
     output_file = os.path.join(OUTPUT_DIR, f"category_{category_id}.csv")
 
     df = pd.DataFrame(products)
-
     # Đảm bảo thứ tự cột
     columns = [
         "id",
@@ -491,17 +414,24 @@ def save_csv(products, category_id):
 
 
 # ============================================================
-# 10. MAIN
+#                           MAIN
 # ============================================================
 
-
 def main():
+    MODE, df = get_category()
 
-    category_id, url_key = get_category()
-
-    products = crawl_category(category_id, url_key)
-
-    save_csv(products, category_id)
+    if MODE == "config":
+        data = df[df["id"] == CATEGORY_ID]
+        if data.empty:
+            raise ValueError(f"Không tìm thấy CATEGORY_ID={CATEGORY_ID} trong {CATEGORY_CSV}")
+        category_id, url_key = data["id"].iloc[0], data["url_key"].iloc[0]
+        products = crawl_category(category_id, url_key)
+        save_csv(products, category_id)
+    else:
+        for row in range(len(df)):
+            category_id, url_key = df["id"].iloc[row], df["url_key"].iloc[row]
+            products = crawl_category(category_id, url_key)
+            save_csv(products, category_id)
 
 
 if __name__ == "__main__":

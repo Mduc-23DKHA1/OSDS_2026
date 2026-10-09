@@ -23,7 +23,14 @@ df = pd.read_csv(INPUT_FILE, encoding="utf-8-sig")
 
 
 # Kiểm tra các thuộc tính cần kiểm tra
-required_columns = ["id", "name", "url_key", "product_count", "children_count"]
+required_columns = [
+    "id",
+    "name",
+    "url_key",
+    "product_count",
+    "children_count",
+    "parent_id",
+]
 
 missing_columns = [column for column in required_columns if column not in df.columns]
 
@@ -56,7 +63,9 @@ leaf_categories = leaf_categories.sort_values(
 
 
 # Lưu file
-result = leaf_categories[["id", "name", "product_count", "link"]].copy()
+result = leaf_categories[
+    ["id", "name", "url_key", "product_count", "link", "parent_id"]
+].copy()
 result.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
 
 print("=" * 60)

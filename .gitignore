@@ -1,3 +1,5 @@
 .venv/*
 data/*
-Khang/API_Crawl/data
+Khang/data/*
+*.csv
+*.json
