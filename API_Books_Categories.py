@@ -60,11 +60,11 @@ from urllib3.util.retry import Retry
 """
 
 # ------------------------------------------------------------
-CATEGORY_MODE = "all"        # Config hiện tại
+CATEGORY_MODE = "all"  # Config hiện tại
 # ------------------------------------------------------------
-CATEGORY_ID = 847            # Nếu CATEGORY_MODE = "config"
+CATEGORY_ID = 847  # Nếu CATEGORY_MODE = "config"
 # ------------------------------------------------------------
-CATEGORY_CSV = "data/full_url_link.csv"     # Nếu CATEGORY_MODE = "all"
+CATEGORY_CSV = "data/full_url_link.csv"  # Nếu CATEGORY_MODE = "all"
 # ------------------------------------------------------------
 OUTPUT_DIR = "data/products"
 
@@ -129,7 +129,7 @@ def get_category():
 
     if df.empty:
         raise ValueError("CATEGORY_CSV không có dữ liệu.")
-    
+
     # --------------------------------------------------------
     # Cách 1: lấy từ CONFIG
     # --------------------------------------------------------
@@ -170,13 +170,7 @@ def get_page(category_id, url_key, page):
     # =========================
     # 2. Các params thay đổi
     # =========================
-    params.update(
-        {
-            "category": category_id,
-            "page": page,
-            "urlKey" : url_key
-        }
-    )
+    params.update({"category": category_id, "page": page, "urlKey": url_key})
 
     print(f"\n[REQUEST] page={page}")
 
@@ -309,7 +303,7 @@ def crawl_category(category_id, url_key):
             try:
                 data = get_page(category_id, url_key, page)
 
-                if data: # Nếu có dữ liệu
+                if data:  # Nếu có dữ liệu
                     print(f"[OK] page={page} " f"-> {len(data)} products")
                     break
 
@@ -380,6 +374,7 @@ def crawl_category(category_id, url_key):
         page += 1
         time.sleep(random.uniform(1.0, 2.0))
 
+
 def save_csv(products, category_id):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     output_file = os.path.join(OUTPUT_DIR, f"category_{category_id}.csv")
@@ -413,23 +408,84 @@ def save_csv(products, category_id):
     return output_file
 
 
+def should_crawl(category_id):
+    """
+    Kiểm tra file sản phẩm trước khi gọi API.
+
+    - Chưa có file: cho phép cào.
+    - Đã có file và số lượng đạt ít nhất 95% của 2000:
+      bỏ qua category.
+    - Đã có file nhưng số lượng dưới 95%:
+      cào lại.
+    """
+    output_file = os.path.join(OUTPUT_DIR, f"category_{category_id}.csv")
+
+    # Trường hợp 1: Chưa tồn tại file
+    if not os.path.exists(output_file):
+        print(f"[NEW] Chưa có file: {output_file}")
+        return True
+
+    # Trường hợp 2: File đã tồn tại
+    try:
+        df_existing = pd.read_csv(output_file)
+        current_count = len(df_existing)
+
+        expected_count = 2000
+        threshold = expected_count * 0.95  # 1900 sách
+
+        print(f"[CHECK] Category {category_id}: " f"{current_count} sách hiện có")
+
+        if current_count >= threshold:
+            print(f"[SKIP] Đã đạt ngưỡng {threshold:.0f} sách. " "Không gọi API.")
+            return False
+
+        print(
+            f"[RECRAWL] Chỉ có {current_count} sách, "
+            f"thấp hơn ngưỡng {threshold:.0f}. "
+            "Cho phép gọi API."
+        )
+        return True
+
+    except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError) as e:
+        print(f"[WARNING] Không đọc được file {output_file}: {e}")
+        print("[RECRAWL] Cho phép cào lại.")
+        return True
+
+
 # ============================================================
 #                           MAIN
 # ============================================================
+
 
 def main():
     MODE, df = get_category()
 
     if MODE == "config":
         data = df[df["id"] == CATEGORY_ID]
+
         if data.empty:
-            raise ValueError(f"Không tìm thấy CATEGORY_ID={CATEGORY_ID} trong {CATEGORY_CSV}")
-        category_id, url_key = data["id"].iloc[0], data["url_key"].iloc[0]
+            raise ValueError(
+                f"Không tìm thấy CATEGORY_ID={CATEGORY_ID} " f"trong {CATEGORY_CSV}"
+            )
+
+        category_id = data["id"].iloc[0]
+        url_key = data["url_key"].iloc[0]
+
+        if not should_crawl(category_id):
+            return
+
         products = crawl_category(category_id, url_key)
         save_csv(products, category_id)
+
     else:
         for row in range(len(df)):
-            category_id, url_key = df["id"].iloc[row], df["url_key"].iloc[row]
+            category_id = df["id"].iloc[row]
+            url_key = df["url_key"].iloc[row]
+
+            # Kiểm tra file trước khi gọi API
+            if not should_crawl(category_id):
+                continue
+
             products = crawl_category(category_id, url_key)
             save_csv(products, category_id)
 
