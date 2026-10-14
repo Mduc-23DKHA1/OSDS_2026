@@ -14,9 +14,7 @@ def run_script(script_name):
     print(f"ĐANG CHẠY: {script_name}")
     print("=" * 60)
 
-    result = subprocess.run(
-        [sys.executable, script_path]
-    )
+    result = subprocess.run([sys.executable, script_path])
 
     if result.returncode != 0:
         print(f"\n❌ {script_name} bị lỗi!")
@@ -30,11 +28,11 @@ def run_script(script_name):
 def main():
 
     script_run_list = [
-        "API_Categories.py",            # chạy API gọi json
-        "Extract_categories.py",        # chạy Extract để chuyển json thành csv
-        "Transform_categories_data.py"  # chạy Transform để tạo link
+        "API_Categories.py",  # chạy API gọi json
+        "Extract_categories.py",  # chạy Extract để chuyển json thành csv
+        "Transform_categories_data.py",  # chạy Transform để tạo link
     ]
-    
+
     for script in script_run_list:
         if not run_script(script):
             return
